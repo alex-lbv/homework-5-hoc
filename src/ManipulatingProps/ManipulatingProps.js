@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {getLoggedInUser} from '../utils'
+import { getLoggedInUser } from '../utils';
 
 /*
   Манипуляция пропами
@@ -13,7 +13,13 @@ import {getLoggedInUser} from '../utils'
 
 const LoadingSpinner = () => <div>Loading...</div>;
 
-export const withLoading = () => {}
+export const withLoading = (WrappedComponent) => {
+  return class extends Component {
+    render() {
+      return this.props.loading ? <LoadingSpinner /> : <WrappedComponent {...this.props} />;
+    }
+  };
+};
 
 /*
   Следующий HOC - injector, его особенность в том,
@@ -30,7 +36,16 @@ export const withLoading = () => {}
 */
 
 
-export const addLoggedInUser = () => {}
+export const addLoggedInUser = (WrappedComponent) => {
+  const user = getLoggedInUser();
+
+  return class extends Component {
+
+    render() {
+      return <WrappedComponent  {...this.props} user={user} />;
+    }
+  };
+};
 
 /*
   Помимо добавления новых пропов можно модифицировать те,
@@ -44,4 +59,21 @@ export const addLoggedInUser = () => {}
   и передаст в обёрнутый компонент
 */
 
-export const withSort = () => {}
+export const withSort = (WrappedComponent) => {
+  return class extends Component {
+    render() {
+      const sortingBooks = this.props.books.sort((tileA, titleB) => {
+          if (tileA.title > titleB.title) {
+            return 1;
+          }
+          if (tileA.title < titleB.title) {
+            return -1;
+          }
+          return 0;
+        }
+      );
+
+      return <WrappedComponent {...this.props} books={sortingBooks} />;
+    }
+  };
+};
